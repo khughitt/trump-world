@@ -5,6 +5,24 @@ date: "January 17, 2017"
 output: github_document
 ---
 
+# Overview
+
+This [RMarkdown](http://rmarkdown.rstudio.com/) document provides some simple R
+code for parsing the [BuzzFeed TrumpWorld open
+dataset](https://www.buzzfeed.com/johntemplon/help-us-map-trumpworld?utm_term=.prXl6l32Z#.id0L5LXdZ),
+and generating both an internal [igraph](http://igraph.org/r/) representation
+of the dataset, as well as an exported [GraphML](http://graphml.graphdrawing.org/) network
+file, allowing for the easy import into external tools such as
+[Cytoscape](http://www.cytoscape.org/).
+
+Below are a couple example visualizations created by assigning various visual
+properties (vertex size and color, edge color, etc.) to different data
+variables, as well as computed network metrics.
+
+![network (zoomed in)](img/network-cytoscape-zoomed.png)
+
+![network (full)](img/network-cytoscape-full.png)
+
 ```{r}
 library('igraph')
 library('knitr')
@@ -22,7 +40,9 @@ igraph.options(vertex.size=4,
 
 # behave, R
 options(stringsAsFactors=FALSE)
+```
 
+```{r load_data}
 # load data
 base_url <- "https://docs.google.com/spreadsheets/d/1Z5Vo5pbvxKJ5XpfALZXvCzW26Cl4we3OaN73K9Ae5Ss/pub?gid=%d&output=csv"
 
@@ -57,25 +77,26 @@ for (sheet_name in names(sheets)) {
     # append to combined data frame
     dat <- rbind(dat, cbind(sheet, 'edge_type'=sheet_name))
 }
+```
 
+```{r trump_world_igraph}
 # create a graph instance
 g <- graph_from_data_frame(dat)
 
 # assign vertex types
 V(g)$type <- ifelse(V(g)$name %in% people, 'person', 'organization')
 
-# only label vertices with more than 5 edges connecting to them
-vertex_labels <- ifelse(degree(g) > 5, V(g)$name, NA)
+# only label vertices with more than 10 edges connecting to them
+V(g)$label <- ifelse(degree(g) > 10, V(g)$name, NA)
 
 # color vertices based on type (person/organization)
 vertex_colors <- ifelse(V(g)$type == 'person', '#016b80', '#7f1601')
 
 coords = layout.fruchterman.reingold(g)
-plot(g, vertex.label=vertex_labels, vertex.color=vertex_colors,
+plot(g, vertex.label=V(g)$label, vertex.color=vertex_colors,
      layout=coords)
 
 # save as GraphML
 write_graph(g, file=file.path('data', 'trump_world.graphml'), format='graphml')
 ```
-
 

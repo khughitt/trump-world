@@ -1,4 +1,36 @@
+Overview
+========
+
+This [RMarkdown](http://rmarkdown.rstudio.com/) document provides some
+simple R code for parsing the [BuzzFeed TrumpWorld open
+dataset](https://www.buzzfeed.com/johntemplon/help-us-map-trumpworld?utm_term=.prXl6l32Z#.id0L5LXdZ),
+and generating both an internal [igraph](http://igraph.org/r/)
+representation of the dataset, as well as an exported
+[GraphML](http://graphml.graphdrawing.org/) network file, allowing for
+the easy import into external tools such as
+[Cytoscape](http://www.cytoscape.org/).
+
+Below are a couple example visualizations created by assigning various
+visual properties (vertex size and color, edge color, etc.) to different
+data variables, as well as computed network metrics.
+
+![network (zoomed in)](img/network-cytoscape-zoomed.png)
+
+![network (full)](img/network-cytoscape-full.png)
+
     library('igraph')
+
+    ## 
+    ## Attaching package: 'igraph'
+
+    ## The following objects are masked from 'package:stats':
+    ## 
+    ##     decompose, spectrum
+
+    ## The following object is masked from 'package:base':
+    ## 
+    ##     union
+
     library('knitr')
 
     # knitr options
@@ -56,17 +88,17 @@
     # assign vertex types
     V(g)$type <- ifelse(V(g)$name %in% people, 'person', 'organization')
 
-    # only label vertices with more than 5 edges connecting to them
-    vertex_labels <- ifelse(degree(g) > 5, V(g)$name, NA)
+    # only label vertices with more than 10 edges connecting to them
+    V(g)$label <- ifelse(degree(g) > 10, V(g)$name, NA)
 
     # color vertices based on type (person/organization)
     vertex_colors <- ifelse(V(g)$type == 'person', '#016b80', '#7f1601')
 
     coords = layout.fruchterman.reingold(g)
-    plot(g, vertex.label=vertex_labels, vertex.color=vertex_colors,
+    plot(g, vertex.label=V(g)$label, vertex.color=vertex_colors,
          layout=coords)
 
-![](README_files/figure-markdown_strict/unnamed-chunk-1-1.png)
+![](README_files/figure-markdown_strict/trump_world_igraph-1.png)
 
     # save as GraphML
     write_graph(g, file=file.path('data', 'trump_world.graphml'), format='graphml')
