@@ -18,19 +18,13 @@ data variables, as well as computed network metrics.
 
 ![network (full)](img/network-cytoscape-full.png)
 
+Methods
+=======
+
+Setup
+-----
+
     library('igraph')
-
-    ## 
-    ## Attaching package: 'igraph'
-
-    ## The following objects are masked from 'package:stats':
-    ## 
-    ##     decompose, spectrum
-
-    ## The following object is masked from 'package:base':
-    ## 
-    ##     union
-
     library('knitr')
 
     # knitr options
@@ -46,6 +40,15 @@ data variables, as well as computed network metrics.
 
     # behave, R
     options(stringsAsFactors=FALSE)
+
+Load data
+---------
+
+Next, in order to create a single data sheet from the three separate
+Google doc sheets (person-person, organization-organization, and
+person-organization), we will download each of the sheets, and combine
+them into a single dataframe, keeping track of both the node and edge
+types.
 
     # load data
     base_url <- "https://docs.google.com/spreadsheets/d/1Z5Vo5pbvxKJ5XpfALZXvCzW26Cl4we3OaN73K9Ae5Ss/pub?gid=%d&output=csv"
@@ -82,6 +85,13 @@ data variables, as well as computed network metrics.
         dat <- rbind(dat, cbind(sheet, 'edge_type'=sheet_name))
     }
 
+Network construction
+--------------------
+
+Now that we have a single dataframe describing each edge in the dataset,
+along with some additional metadata, we will create an igraph graph
+instance of the data frame.
+
     # create a graph instance
     g <- graph_from_data_frame(dat)
 
@@ -100,5 +110,42 @@ data variables, as well as computed network metrics.
 
 ![](README_files/figure-markdown_strict/trump_world_igraph-1.png)
 
-    # save as GraphML
+Save network
+------------
+
+Finally, let's save the network as a GraphML file. This will allow us to
+provide a single file including both the network topology and and
+node/edge metadata.
+
     write_graph(g, file=file.path('data', 'trump_world.graphml'), format='graphml')
+
+All done!
+
+System information
+==================
+
+    sessionInfo()
+
+    ## R version 3.3.2 (2016-10-31)
+    ## Platform: x86_64-pc-linux-gnu (64-bit)
+    ## Running under: Arch Linux
+    ## 
+    ## locale:
+    ##  [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C              
+    ##  [3] LC_TIME=en_US.UTF-8        LC_COLLATE=en_US.UTF-8    
+    ##  [5] LC_MONETARY=en_US.UTF-8    LC_MESSAGES=en_US.UTF-8   
+    ##  [7] LC_PAPER=en_US.UTF-8       LC_NAME=C                 
+    ##  [9] LC_ADDRESS=C               LC_TELEPHONE=C            
+    ## [11] LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C       
+    ## 
+    ## attached base packages:
+    ## [1] stats     graphics  grDevices utils     datasets  methods   base     
+    ## 
+    ## other attached packages:
+    ## [1] knitr_1.15.1   igraph_1.0.1   rmarkdown_1.3  nvimcom_0.9-25
+    ## [5] colorout_1.1-1
+    ## 
+    ## loaded via a namespace (and not attached):
+    ##  [1] backports_1.0.4 magrittr_1.5    rprojroot_1.1   htmltools_0.3.5
+    ##  [5] tools_3.3.2     yaml_2.1.14     Rcpp_0.12.8     stringi_1.1.2  
+    ##  [9] stringr_1.1.0   digest_0.6.11   evaluate_0.10

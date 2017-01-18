@@ -23,7 +23,11 @@ variables, as well as computed network metrics.
 
 ![network (full)](img/network-cytoscape-full.png)
 
-```{r}
+# Methods
+
+## Setup
+
+```{r, message=FALSE}
 library('igraph')
 library('knitr')
 
@@ -41,6 +45,13 @@ igraph.options(vertex.size=4,
 # behave, R
 options(stringsAsFactors=FALSE)
 ```
+
+## Load data
+
+Next, in order to create a single data sheet from the three separate Google doc
+sheets (person-person, organization-organization, and person-organization), we
+will download each of the sheets, and combine them into a single dataframe,
+keeping track of both the node and edge types.
 
 ```{r load_data}
 # load data
@@ -79,6 +90,12 @@ for (sheet_name in names(sheets)) {
 }
 ```
 
+## Network construction
+
+Now that we have a single dataframe describing each edge in the dataset, along
+with some additional metadata, we will create an igraph graph instance of the
+data frame.
+
 ```{r trump_world_igraph}
 # create a graph instance
 g <- graph_from_data_frame(dat)
@@ -95,8 +112,23 @@ vertex_colors <- ifelse(V(g)$type == 'person', '#016b80', '#7f1601')
 coords = layout.fruchterman.reingold(g)
 plot(g, vertex.label=V(g)$label, vertex.color=vertex_colors,
      layout=coords)
+```
 
-# save as GraphML
+## Save network
+
+Finally, let's save the network as a GraphML file. This will allow us to
+provide a single file including both the network topology and and node/edge
+metadata.
+
+```
 write_graph(g, file=file.path('data', 'trump_world.graphml'), format='graphml')
+```
+
+All done!
+
+# System information
+
+```{r}
+sessionInfo()
 ```
 
