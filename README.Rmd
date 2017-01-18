@@ -34,12 +34,14 @@ library('igraph')
 library('knitr')
 
 # knitr options
-opts_chunk$set(fig.width=1080/192,
-               fig.height=1080/192,
+opts_chunk$set(fig.width=1920/192,
+               fig.height=1920/192,
                dpi=192)
 
 # igraph options
-igraph.options(vertex.label.color='white')
+igraph.options(vertex.label.color='white', 
+               edge.arrow.mode='-',
+               edge.width=0.4)
 
 # behave, R
 options(stringsAsFactors=FALSE)
@@ -102,22 +104,22 @@ g <- graph_from_data_frame(dat)
 # assign vertex types
 V(g)$type <- ifelse(V(g)$name %in% people, 'person', 'organization')
 
-# only label vertices with more than 20 edges connecting to them
-V(g)$label <- ifelse(degree(g) > 20, V(g)$name, NA)
+# only label vertices with more than 25 edges connecting to them
+V(g)$label <- ifelse(degree(g) > 25, V(g)$name, NA)
 
 # scale vertex size based on node degree
-vertex_size <- pmax(1, log(degree(g)))
+vertex_size <- pmax(1, log2(degree(g)))
 
 # color vertices based on type (person/organization)
-vertex_colors <- ifelse(V(g)$type == 'person', '#0066CC55', '#CC000055')
+vertex_colors <- ifelse(V(g)$type == 'person', '#0066CCCC', '#CC0000CC')
 
 # vertex label properties
-vertex_label_cex <- vertex_size / 3
+vertex_label_cex <- vertex_size / 10
 
 # color edges based on connection type
-edge_color <- ifelse(E(g)$edge_type == 'org-org', '#9999FF33',
-                     ifelse(E(g)$edge_type == 'person-person', '#CCFF6633',
-                            '#FF999933'))
+edge_color <- ifelse(E(g)$edge_type == 'org-org', '#9999FF88',
+                     ifelse(E(g)$edge_type == 'person-person', '#CCFF6688',
+                            '#FF999988'))
 
 # assign edge weight based on edge-betweeness
 E(g)$weight <- edge.betweenness(g)
