@@ -1,16 +1,4 @@
     library('igraph')
-
-    ## 
-    ## Attaching package: 'igraph'
-
-    ## The following objects are masked from 'package:stats':
-    ## 
-    ##     decompose, spectrum
-
-    ## The following object is masked from 'package:base':
-    ## 
-    ##     union
-
     library('knitr')
 
     # knitr options
@@ -66,10 +54,12 @@
     g <- graph_from_data_frame(dat)
 
     # assign vertex types
-    V(g)$type <- ifelse(V(g) %in% people, 'person', 'organization')
+    V(g)$type <- ifelse(V(g)$name %in% people, 'person', 'organization')
 
-    # vertex styles
-    vertex_labels <- ifelse(degree(g) > 2, V(g)$name, NA)
+    # only label vertices with more than 5 edges connecting to them
+    vertex_labels <- ifelse(degree(g) > 5, V(g)$name, NA)
+
+    # color vertices based on type (person/organization)
     vertex_colors <- ifelse(V(g)$type == 'person', '#016b80', '#7f1601')
 
     coords = layout.fruchterman.reingold(g)
