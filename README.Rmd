@@ -2,7 +2,9 @@
 title: TrumpWorld Network Visualization
 author: Keith Hughitt
 date: "January 17, 2017"
-output: github_document
+output:
+  md_document:
+    variant: markdown_github
 ---
 
 # Overview
@@ -96,7 +98,7 @@ Now that we have a single dataframe describing each edge in the dataset, along
 with some additional metadata, we will create an igraph graph instance of the
 data frame.
 
-```{r trump_world_igraph}
+```{r trump_world_igraph, fig.cap="**Figure** igraph visualization of network"}
 # create a graph instance
 g <- graph_from_data_frame(dat)
 
@@ -109,6 +111,7 @@ V(g)$label <- ifelse(degree(g) > 10, V(g)$name, NA)
 # color vertices based on type (person/organization)
 vertex_colors <- ifelse(V(g)$type == 'person', '#016b80', '#7f1601')
 
+# visualize the network using igraph
 coords = layout.fruchterman.reingold(g)
 plot(g, vertex.label=V(g)$label, vertex.color=vertex_colors,
      layout=coords)
