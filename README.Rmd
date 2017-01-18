@@ -39,10 +39,7 @@ opts_chunk$set(fig.width=1080/192,
                dpi=192)
 
 # igraph options
-igraph.options(vertex.size=4,
-               vertex.label.cex=0.5,
-               edge.arrow.mode='-',
-               edge.width=0.75)
+igraph.options(vertex.label.color='white')
 
 # behave, R
 options(stringsAsFactors=FALSE)
@@ -105,15 +102,36 @@ g <- graph_from_data_frame(dat)
 # assign vertex types
 V(g)$type <- ifelse(V(g)$name %in% people, 'person', 'organization')
 
-# only label vertices with more than 10 edges connecting to them
-V(g)$label <- ifelse(degree(g) > 10, V(g)$name, NA)
+# only label vertices with more than 20 edges connecting to them
+V(g)$label <- ifelse(degree(g) > 20, V(g)$name, NA)
+
+# scale vertex size based on node degree
+vertex_size <- pmax(1, log(degree(g)))
 
 # color vertices based on type (person/organization)
-vertex_colors <- ifelse(V(g)$type == 'person', '#016b80', '#7f1601')
+vertex_colors <- ifelse(V(g)$type == 'person', '#0066CC55', '#CC000055')
+
+# vertex label properties
+vertex_label_cex <- vertex_size / 3
+
+# color edges based on connection type
+edge_color <- ifelse(E(g)$edge_type == 'org-org', '#9999FF33',
+                     ifelse(E(g)$edge_type == 'person-person', '#CCFF6633',
+                            '#FF999933'))
+
+# assign edge weight based on edge-betweeness
+E(g)$weight <- edge.betweenness(g)
 
 # visualize the network using igraph
-coords = layout.fruchterman.reingold(g)
-plot(g, vertex.label=V(g)$label, vertex.color=vertex_colors,
+coords <- layout.fruchterman.reingold(g, weights=E(g)$weight)
+
+par(bg="#111111")
+plot(g, 
+     vertex.label=V(g)$label, 
+     vertex.color=vertex_colors,
+     vertex.size=vertex_size, 
+     vertex.label.cex=vertex_label_cex,
+     edge.color=edge_color,
      layout=coords)
 ```
 
